@@ -1,0 +1,12 @@
+{
+  "unit": "calendar",
+  "timestamp": "2026-01-15T06:00:00Z",
+  "bias": "neutral",
+  "impact": "medium",
+  "confidence": 0.55,
+  "reasoning": "EXAMPLE DATA. Two medium-impact USD releases are scheduled in the New York session. Consensus forecasts are close to the previous readings, so no strong directional surprise is expected before the data is out.",
+  "raw_events": [
+    {"time": "8:30am", "currency": "USD", "event": "Example CPI m/m", "impact": "high", "forecast": "0.3%", "previous": "0.3%", "actual": null},
+    {"time": "10:00am", "currency": "USD", "event": "Example Consumer Sentiment", "impact": "medium", "forecast": "70.5", "previous": "69.8", "actual": null}
+  ]
+}

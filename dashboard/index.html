@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gold Daily Intelligence</title>
+<style>
+  :root {
+    --bg: #05070d; --panel-border: #1c2a44; --text: #d7e2f2; --text-dim: #6b7c99;
+    --accent: #33e0ff; --bullish: #2be08a; --bearish: #ff4d6d; --neutral: #ffcf4d;
+    --glow: 0 0 12px rgba(51, 224, 255, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(51,224,255,0.06), transparent 40%),
+      radial-gradient(circle at 90% 100%, rgba(255,77,109,0.05), transparent 40%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Vazirmatn", "Segoe UI", system-ui, Tahoma, sans-serif;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .topbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    border-bottom: 1px solid var(--panel-border); padding-bottom: 14px; margin-bottom: 20px; }
+  .brand { font-size: 20px; letter-spacing: 2px; color: var(--accent); text-shadow: var(--glow); font-weight: 700; }
+  .brand span { color: var(--text-dim); font-weight: 400; font-size: 13px; letter-spacing: 0; }
+  .clock { font-family: monospace; color: var(--text-dim); font-size: 14px; }
+  .meta { text-align: end; }
+  .demo-banner { display: none; background: rgba(255,207,77,0.12); border: 1px solid var(--neutral); color: var(--neutral);
+    border-radius: 8px; padding: 8px 14px; margin-bottom: 18px; font-size: 13px; }
+
+  .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+  @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+
+  .panel { background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+    border: 1px solid var(--panel-border); border-radius: 10px; padding: 16px 18px; margin-bottom: 18px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-dim);
+    margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px; }
+  .panel h2::before { content: ""; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; box-shadow: var(--glow); }
+
+  .bias-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .bias-badge { font-size: 28px; font-weight: 800; padding: 10px 22px; border-radius: 8px; letter-spacing: 1px; text-transform: uppercase; }
+  .bias-bullish { color: var(--bullish); border: 1px solid var(--bullish); box-shadow: 0 0 18px rgba(43,224,138,0.25); }
+  .bias-bearish { color: var(--bearish); border: 1px solid var(--bearish); box-shadow: 0 0 18px rgba(255,77,109,0.25); }
+  .bias-neutral { color: var(--neutral); border: 1px solid var(--neutral); box-shadow: 0 0 18px rgba(255,207,77,0.25); }
+  .stat { text-align: center; }
+  .stat .val { font-size: 22px; font-weight: 700; font-family: monospace; }
+  .stat .label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+
+  .reasoning { font-size: 14px; line-height: 1.9; background: rgba(255,255,255,0.02);
+    border-inline-start: 3px solid var(--accent); padding: 12px 14px; border-radius: 6px; margin-top: 14px; }
+
+  .event-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+  .event-row:last-child { border-bottom: none; }
+  .event-time { font-family: monospace; color: var(--accent); min-width: 60px; }
+  .event-currency { font-size: 11px; background: rgba(51,224,255,0.1); color: var(--accent); padding: 2px 8px; border-radius: 4px; margin: 0 8px; }
+  .event-name { flex: 1; }
+
+  .caution-item { font-size: 13px; color: var(--text-dim); padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.06); }
+  .caution-item:last-child { border-bottom: none; }
+  .caution-item::before { content: "\26A0  "; color: var(--neutral); }
+
+  .unit-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .unit-card { border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; text-align: center; }
+  .unit-card .name { font-size: 11px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; }
+  .unit-card .bias { font-size: 15px; font-weight: 700; }
+
+  .news-item { font-size: 13px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .news-item:last-child { border-bottom: none; }
+  .news-item .tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; margin-inline-end: 6px; }
+  .tag-fact { background: rgba(43,224,138,0.15); color: var(--bullish); }
+  .tag-opinion { background: rgba(255,207,77,0.15); color: var(--neutral); }
+  .news-item a, .whale-name a { color: inherit; text-decoration: underline; text-decoration-color: var(--panel-border); }
+
+  .chart-wrap { height: 500px; border-radius: 8px; overflow: hidden; border: 1px solid var(--panel-border); }
+  #tv_chart { height: 100%; }
+  .disclaimer { font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--panel-border); }
+  .empty { color: var(--text-dim); font-size: 13px; padding: 10px 0; }
+
+  .whale-row { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .whale-row:last-child { border-bottom: none; }
+  .whale-name { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .whale-value { font-size: 15px; font-weight: 700; font-family: monospace; display: flex; align-items: center; gap: 8px; }
+  .whale-change { font-size: 12px; font-family: monospace; }
+  .whale-up { color: var(--bullish); } .whale-down { color: var(--bearish); }
+  .whale-note { font-size: 12px; color: var(--text-dim); margin-top: 4px; line-height: 1.6; }
+  .whale-list { font-size: 12px; margin-top: 4px; }
+  .whale-list span { display: inline-block; margin-inline-end: 10px; }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">GOLD DAILY INTELLIGENCE <span>| <span data-i18n="brandSub"></span></span></div>
+    <div class="meta">
+      <div class="clock" id="clock">—</div>
+      <div class="clock" id="last-updated" style="font-size:12px; margin-top:2px;"></div>
+    </div>
+  </div>
+
+  <div class="demo-banner" id="demo-banner" data-i18n="demoBanner"></div>
+
+  <div class="grid">
+    <div class="col-main">
+      <div class="panel">
+        <h2 data-i18n="chartTitle"></h2>
+        <div class="chart-wrap"><div id="tv_chart"></div></div>
+      </div>
+      <div class="panel">
+        <h2 data-i18n="briefingTitle"></h2>
+        <div id="synthesis-block"><div class="empty" data-i18n="loading"></div></div>
+      </div>
+      <div class="panel">
+        <h2 data-i18n="breakdownTitle"></h2>
+        <div class="unit-cards" id="unit-breakdown"><div class="empty" data-i18n="loading"></div></div>
+      </div>
+      <div class="panel">
+        <h2 data-i18n="fundamentalTitle"></h2>
+        <div id="fundamental-block"><div class="empty" data-i18n="loading"></div></div>
+      </div>
+    </div>
+
+    <div class="col-side">
+      <div class="panel">
+        <h2 data-i18n="eventsTitle"></h2>
+        <div id="events-block"><div class="empty" data-i18n="loading"></div></div>
+      </div>
+      <div class="panel">
+        <h2 data-i18n="cautionTitle"></h2>
+        <div id="caution-block"><div class="empty" data-i18n="loading"></div></div>
+      </div>
+      <div class="panel">
+        <h2 data-i18n="whalesTitle"></h2>
+        <div id="whales-block"><div class="empty" data-i18n="loading"></div></div>
+      </div>
+      <div class="panel">
+        <h2 data-i18n="newsTitle"></h2>
+        <div id="news-block"><div class="empty" data-i18n="loading"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer" data-i18n="disclaimer"></div>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+  // ---------- config: ?tz=Europe/Berlin overrides the timezone (default: your browser's timezone) ----------
+  const params = new URLSearchParams(location.search);
+  const LOCALE = "en-US";
+  const TZ = params.get("tz") || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const T = {
+    brandSub: "daily gold briefing", chartTitle: "Live XAU/USD chart", briefingTitle: "Today's briefing",
+    breakdownTitle: "Unit breakdown", fundamentalTitle: "Fundamentals (USD, real yields, Fed, CPI/NFP)",
+    eventsTitle: "High-risk events today", cautionTitle: "Cautions", whalesTitle: "Big market players",
+    newsTitle: "Related news", loading: "Loading...", lastUpdated: "Last update",
+    bullish: "Bullish", bearish: "Bearish", neutral: "Neutral",
+    confidence: "Confidence", impact: "Impact", calendar: "Calendar", fundamental: "Fundamental", news: "News",
+    noSynthesis: "No briefing available yet.", noBreakdown: "Not available", noEvents: "No high-risk events recorded.",
+    noCaution: "No cautions recorded.", noNews: "No news recorded.", noData: "No data available yet.",
+    noFundamental: "No fundamental output yet.", serverDown: "Could not reach the local dashboard server. Is server.py running?",
+    fact: "fact", opinion: "opinion", spot: "Gold spot price", fedProb: "Fed rate probability (next FOMC)",
+    hold: "hold/hike", cut: "cut", cot: "Speculators (COT, gold futures)", cotNet: "contracts net long",
+    cotNote: "report", cotSrc: "CFTC, weekly", gld: "ETF funds (GLD holdings)", tonnes: "t", asOf: "as of",
+    gldSrc: "SPDR Gold Shares, daily", cb: "Central banks", cbSrc: "World Gold Council, reported with a lag",
+    unchanged: "unchanged",
+    demoBanner: "Demo mode: showing synthetic example data, not real market data. Put real unit outputs in logs/<unit>/<YYYY-MM-DD>.json.",
+    disclaimer: "Informational tool only. It is not an automated trading system, a signal service or financial advice."
+  };
+
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = T[el.dataset.i18n]; });
+
+  // ---------- safety helpers: model output and scraped text are untrusted ----------
+  function esc(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  function safeUrl(url) {
+    try {
+      const u = new URL(url, location.href);
+      return (u.protocol === "https:" || u.protocol === "http:") ? u.href : null;
+    } catch { return null; }
+  }
+  const link = (href, label) => {
+    const safe = safeUrl(href);
+    return safe ? `<a href="${esc(safe)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>` : esc(label);
+  };
+
+  new TradingView.widget({
+    autosize: true, symbol: "OANDA:XAUUSD", interval: "60", timezone: TZ, theme: "dark", style: "1",
+    locale: "en", toolbar_bg: "#0b1220", enable_publishing: false,
+    hide_top_toolbar: false, withdateranges: true, hide_legend: false, save_image: false, container_id: "tv_chart"
+  });
+
+  const biasClass = b => b === "bullish" ? "bias-bullish" : b === "bearish" ? "bias-bearish" : "bias-neutral";
+  const biasLabel = b => T[b === "bullish" || b === "bearish" ? b : "neutral"];
+  const $ = id => document.getElementById(id);
+  const empty = key => `<div class="empty">${esc(T[key])}</div>`;
+  const pct = c => `${(Number(c) * 100).toFixed(0)}%`;
+
+  function renderSynthesis(s) {
+    if (!s) { $("synthesis-block").innerHTML = empty("noSynthesis"); return; }
+    $("synthesis-block").innerHTML = `
+      <div class="bias-row">
+        <div class="bias-badge ${biasClass(s.bias)}">${esc(biasLabel(s.bias))}</div>
+        <div class="stat"><div class="val">${esc(pct(s.confidence))}</div><div class="label">${esc(T.confidence)}</div></div>
+        <div class="stat"><div class="val">${esc(s.impact || "-")}</div><div class="label">${esc(T.impact)}</div></div>
+      </div>
+      <div class="reasoning">${esc(s.reasoning)}</div>`;
+  }
+
+  function renderBreakdown(s) {
+    const ub = s && s.unit_breakdown;
+    if (!ub) { $("unit-breakdown").innerHTML = empty("noBreakdown"); return; }
+    $("unit-breakdown").innerHTML = ["calendar", "fundamental", "news"].map(key => {
+      const u = ub[key] || {};
+      const color = u.bias === "bullish" ? "bullish" : u.bias === "bearish" ? "bearish" : "neutral";
+      return `<div class="unit-card"><div class="name">${esc(T[key])}</div>
+        <div class="bias" style="color: var(--${color})">${esc(biasLabel(u.bias))}</div></div>`;
+    }).join("");
+  }
+
+  function renderEvents(s) {
+    const events = (s && s.high_risk_events) || [];
+    $("events-block").innerHTML = !events.length ? empty("noEvents") : events.map(e => `
+      <div class="event-row"><span class="event-time">${esc(e.time)}</span>
+        <span class="event-currency">${esc(e.currency)}</span><span class="event-name">${esc(e.event)}</span></div>`).join("");
+  }
+
+  function renderCaution(s) {
+    const notes = (s && s.caution_notes) || [];
+    $("caution-block").innerHTML = !notes.length ? empty("noCaution") : notes.map(n => `<div class="caution-item">${esc(n)}</div>`).join("");
+  }
+
+  const fmtNum = n => (n === null || n === undefined) ? "-" : Number(n).toLocaleString("en-US");
+  function changeArrow(change) {
+    if (change === null || change === undefined) return "";
+    if (change > 0) return `<span class="whale-change whale-up">▲ +${esc(fmtNum(change))}</span>`;
+    if (change < 0) return `<span class="whale-change whale-down">▼ ${esc(fmtNum(change))}</span>`;
+    return `<span class="whale-change">${esc(T.unchanged)}</span>`;
+  }
+
+  function renderWhales(fundamental) {
+    const events = (fundamental && fundamental.raw_events) || [];
+    const cot = events.find(e => e.series === "cot_gold");
+    const gld = events.find(e => e.series === "gld_holdings");
+    const cb = events.find(e => e.series === "central_bank_reserves");
+    if (!cot && !gld && !cb) { $("whales-block").innerHTML = empty("noData"); return; }
+    let html = "";
+    if (cot) html += `<div class="whale-row">
+      <div class="whale-name">${link("https://publicreporting.cftc.gov/", T.cot)}</div>
+      <div class="whale-value">${esc(fmtNum(cot.managed_money_net_long))} ${esc(T.cotNet)} ${changeArrow(cot.change_in_net_long)}</div>
+      <div class="whale-note">${esc(T.cotNote)} ${esc(cot.report_date)} — ${esc(T.cotSrc)}</div></div>`;
+    if (gld) html += `<div class="whale-row">
+      <div class="whale-name">${link("https://www.spdrgoldshares.com/usa/gld/", T.gld)}</div>
+      <div class="whale-value">${esc(fmtNum(gld.gld_tonnes))} ${esc(T.tonnes)} ${changeArrow(gld.change_in_tonnes)}</div>
+      <div class="whale-note">${esc(T.asOf)} ${esc(gld.as_of_date)} — ${esc(T.gldSrc)}</div></div>`;
+    if (cb) {
+      const buyers = (cb.top_buyers || []).map(b => `<span style="color:var(--bullish)">${esc(b.country)} +${esc(b.tonnes)}t</span>`).join("");
+      const sellers = (cb.top_sellers || []).map(s => `<span style="color:var(--bearish)">${esc(s.country)} ${esc(s.tonnes)}t</span>`).join("");
+      html += `<div class="whale-row">
+        <div class="whale-name">${link("https://www.gold.org/goldhub/data/gold-reserves-by-country", `${T.cb} (${cb.period || ""})`)}</div>
+        <div class="whale-list">${buyers}${sellers}</div><div class="whale-note">${esc(T.cbSrc)}</div></div>`;
+    }
+    $("whales-block").innerHTML = html;
+  }
+
+  function renderFundamental(f) {
+    if (!f) { $("fundamental-block").innerHTML = empty("noFundamental"); return; }
+    const events = f.raw_events || [];
+    const spot = events.find(e => e.series === "spot_price_realtime");
+    const fed = events.find(e => e.series === "cme_fedwatch");
+    let extra = "";
+    if (spot) {
+      const cls = spot.change_pct > 0 ? "whale-up" : spot.change_pct < 0 ? "whale-down" : "";
+      const arrow = spot.change_pct > 0 ? "▲ +" : spot.change_pct < 0 ? "▼ " : "";
+      extra += `<div class="whale-row"><div class="whale-name">${esc(T.spot)}</div>
+        <div class="whale-value">$${esc(fmtNum(spot.price))} <span class="whale-change ${cls}">${arrow}${spot.change_pct !== undefined ? esc(spot.change_pct) + "%" : ""}</span></div>
+        <div class="whale-note">${esc(spot.as_of)}</div></div>`;
+    }
+    if (fed) {
+      extra += `<div class="whale-row"><div class="whale-name">${esc(T.fedProb)}</div>
+        <div class="whale-value">${esc(fed.current_rate_range)} — ${esc(fmtNum(fed.probability_hold_or_hike))}% ${esc(T.hold)}, ${esc(fmtNum(fed.probability_cut))}% ${esc(T.cut)}</div>
+        <div class="whale-note">${esc(fed.note)}</div></div>`;
+    }
+    $("fundamental-block").innerHTML = `
+      <div class="bias-row">
+        <div class="bias-badge ${biasClass(f.bias)}" style="font-size:18px; padding:6px 14px;">${esc(biasLabel(f.bias))}</div>
+        <div class="stat"><div class="val">${esc(pct(f.confidence))}</div><div class="label">${esc(T.confidence)}</div></div>
+        <div class="stat"><div class="val">${esc(f.impact || "-")}</div><div class="label">${esc(T.impact)}</div></div>
+      </div>${extra}<div class="reasoning">${esc(f.reasoning)}</div>`;
+  }
+
+  const SOURCE_HOME = { forexfactory: "https://www.forexfactory.com/news", kitco: "https://www.kitco.com/news/" };
+  function renderNews(news) {
+    const events = (news && news.raw_events) || [];
+    if (!events.length) { $("news-block").innerHTML = empty("noNews"); return; }
+    $("news-block").innerHTML = events.map(n => {
+      const href = n.url || SOURCE_HOME[n.source] || null;
+      const headline = href ? link(href, n.headline || "") : esc(n.headline);
+      const isFact = n.category === "fact";
+      return `<div class="news-item">
+        <span class="tag ${isFact ? "tag-fact" : "tag-opinion"}">${esc(isFact ? T.fact : T.opinion)}</span>${headline}
+        <div style="color:var(--text-dim);font-size:11px;margin-top:2px;">${esc(n.time)} ${n.source_note ? "— " + esc(n.source_note) : ""}</div></div>`;
+    }).join("");
+  }
+
+  function renderLastUpdated(data) {
+    const stamps = [data.calendar, data.fundamental, data.news, data.synthesis]
+      .filter(u => u && u.timestamp).map(u => new Date(u.timestamp)).filter(d => !isNaN(d));
+    $("last-updated").textContent = stamps.length
+      ? `${T.lastUpdated}: ${new Date(Math.max(...stamps)).toLocaleString(LOCALE, { timeZone: TZ })}`
+      : `${T.lastUpdated}: —`;
+  }
+
+  async function refresh() {
+    try {
+      const res = await fetch("/api/today");
+      const data = await res.json();
+      $("demo-banner").style.display = data.demo ? "block" : "none";
+      renderSynthesis(data.synthesis); renderBreakdown(data.synthesis); renderEvents(data.synthesis);
+      renderCaution(data.synthesis); renderNews(data.news); renderWhales(data.fundamental);
+      renderFundamental(data.fundamental); renderLastUpdated(data);
+    } catch (e) {
+      $("synthesis-block").innerHTML = empty("serverDown");
+    }
+  }
+
+  const tick = () => { $("clock").textContent = new Date().toLocaleString(LOCALE, { timeZone: TZ }); };
+  tick(); setInterval(tick, 1000);
+  refresh(); setInterval(refresh, 5 * 60 * 1000);
+</script>
+</body>
+</html>

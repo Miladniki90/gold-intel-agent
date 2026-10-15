@@ -1,0 +1,15 @@
+{
+  "unit": "fundamental",
+  "timestamp": "2026-01-15T06:05:00Z",
+  "bias": "bullish",
+  "impact": "medium",
+  "confidence": 0.6,
+  "reasoning": "EXAMPLE DATA. The dollar proxy is softer, real yields eased for a second day, and speculative positioning is rising while ETF holdings are flat. Together this leans mildly supportive for gold.",
+  "raw_events": [
+    {"series": "cot_gold", "report_date": "2026-01-09", "managed_money_net_long": 150000, "change_in_net_long": 4200},
+    {"series": "gld_holdings", "as_of_date": "2026-01-14", "gld_tonnes": 900.0, "change_in_tonnes": -1.2},
+    {"series": "central_bank_reserves", "period": "Q4 (example)", "top_buyers": [{"country": "Country A", "tonnes": 20.5}, {"country": "Country B", "tonnes": 11.0}], "top_sellers": [{"country": "Country C", "tonnes": -3.1}]},
+    {"series": "spot_price_realtime", "price": 2500.0, "change_pct": 0.4, "as_of": "example timestamp"},
+    {"series": "cme_fedwatch", "current_rate_range": "4.25-4.50%", "probability_hold_or_hike": 62.0, "probability_cut": 38.0, "note": "Example probabilities for the next meeting"}
+  ]
+}

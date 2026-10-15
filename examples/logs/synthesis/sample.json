@@ -1,0 +1,22 @@
+{
+  "unit": "synthesis",
+  "timestamp": "2026-01-15T06:20:00Z",
+  "bias": "neutral",
+  "impact": "medium",
+  "confidence": 0.5,
+  "reasoning": "EXAMPLE DATA, NOT REAL MARKET DATA. Calendar and news are neutral while the fundamental unit leans mildly bullish. With CPI due in the New York session, the briefing is a pre-event snapshot and should be re-run after the release. This is an information summary, not a price forecast or trading advice.",
+  "raw_events": [],
+  "high_risk_events": [
+    {"time": "8:30am", "currency": "USD", "event": "Example CPI m/m"},
+    {"time": "10:00am", "currency": "USD", "event": "Example Consumer Sentiment"}
+  ],
+  "caution_notes": [
+    "Example: CPI is the main event of the day; refresh the briefing right after the release.",
+    "Example: confidence is capped while key data is still unreleased."
+  ],
+  "unit_breakdown": {
+    "calendar": {"bias": "neutral", "impact": "medium", "confidence": 0.55},
+    "fundamental": {"bias": "bullish", "impact": "medium", "confidence": 0.6},
+    "news": {"bias": "neutral", "impact": "low", "confidence": 0.5}
+  }
+}

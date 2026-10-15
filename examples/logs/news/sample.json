@@ -1,0 +1,12 @@
+{
+  "unit": "news",
+  "timestamp": "2026-01-15T06:10:00Z",
+  "bias": "neutral",
+  "impact": "low",
+  "confidence": 0.5,
+  "reasoning": "EXAMPLE DATA. Headlines are a mix of facts and commentary with no clear directional catalyst.",
+  "raw_events": [
+    {"category": "fact", "headline": "Example: Central bank publishes meeting minutes", "source": "kitco", "time": "05:30", "source_note": "example"},
+    {"category": "opinion", "headline": "Example: Analyst expects range-bound trading ahead of CPI", "source": "forexfactory", "time": "05:45", "source_note": "example"}
+  ]
+}
